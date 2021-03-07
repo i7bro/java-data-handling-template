@@ -1,5 +1,9 @@
 package com.epam.izh.rd.online.service;
 
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class SimpleTextService implements TextService {
 
     /**
@@ -13,7 +17,9 @@ public class SimpleTextService implements TextService {
      */
     @Override
     public String removeString(String base, String remove) {
-        return null; //TODO
+        Pattern pattern = Pattern.compile(remove);
+        String[] str = pattern.split(base);
+        return concatenate(str);
     }
 
     /**
@@ -24,7 +30,7 @@ public class SimpleTextService implements TextService {
      */
     @Override
     public boolean isQuestionString(String text) {
-        return false; //TODO
+        return text.matches(".*\\?$");
     }
 
     /**
@@ -35,7 +41,11 @@ public class SimpleTextService implements TextService {
      */
     @Override
     public String concatenate(String... elements) {
-        return null; //TODO
+        StringBuilder sb = new StringBuilder();
+        for (String str : elements) {
+            sb.append(str);
+        }
+        return sb.toString();
     }
 
     /**
@@ -47,7 +57,17 @@ public class SimpleTextService implements TextService {
      */
     @Override
     public String toJumpCase(String text) {
-        return null; //TODO
+        String[] strings = new String[text.length()];
+
+        for (int i = 0; i < strings.length; i++) {
+            String temp = String.valueOf(text.charAt(i));
+            if (!temp.matches("[a-zA-Zа-яА-Я]")) {
+                strings[i] = temp;
+                continue;
+            }
+            strings[i] = (i % 2) == 0 ? temp.toLowerCase() : temp.toUpperCase();
+        }
+        return String.join("", strings);
     }
 
     /**
@@ -59,6 +79,8 @@ public class SimpleTextService implements TextService {
      */
     @Override
     public boolean isPalindrome(String string) {
-       return false; //TODO
+        String temp = removeString(string, "[^a-zA-Zа-яА-Я]");
+        String tempRevert = new StringBuilder(temp).reverse().toString();
+        return !temp.equals("") && temp.equalsIgnoreCase(tempRevert);
     }
 }

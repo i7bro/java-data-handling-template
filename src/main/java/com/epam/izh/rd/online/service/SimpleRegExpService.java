@@ -1,5 +1,16 @@
 package com.epam.izh.rd.online.service;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class SimpleRegExpService implements RegExpService {
 
     /**
@@ -11,7 +22,22 @@ public class SimpleRegExpService implements RegExpService {
      */
     @Override
     public String maskSensitiveData() {
-        return null;
+        String str = null;
+        try (BufferedReader dr = new BufferedReader(new FileReader(
+                new File("./src/main/resources/sensitive_data.txt")))) {
+            str = dr.readLine();
+            Pattern pattern = Pattern.compile("[0-9]{4}\\W[0-9]{4}\\W[0-9]{4}\\W[0-9]{4}");
+            Matcher matcher = pattern.matcher(str);
+            StringBuilder sbTemp;
+            while (matcher.find()) {
+                sbTemp = new StringBuilder(matcher.group().replaceAll("\\W", ""));
+                sbTemp.replace(4, 12, " **** **** ");
+                str = str.replace(matcher.group(), sbTemp.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return str;
     }
 
     /**
@@ -22,6 +48,18 @@ public class SimpleRegExpService implements RegExpService {
      */
     @Override
     public String replacePlaceholders(double paymentAmount, double balance) {
-        return null;
+        String str = null;
+        try (BufferedReader br = new BufferedReader(new FileReader(
+                new File("./src/main/resources/sensitive_data.txt")))) {
+
+            if ((str = br.readLine()) != null) {
+                str = str.replaceAll("\\Q${payment_amount}\\E", String.valueOf((int) paymentAmount));
+                str = str.replaceAll("\\Q${balance}\\E", String.valueOf((int) balance));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return str;
     }
 }
